@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+function compute()
+{
+ var input=document.getElementById('input').value;
+ var keyword=document.getElementById('keyword').value;
+ var offset=Number(document.getElementById('offset').value);
+ while(offset<0){offset=(offset)+26;}
+ var decrypt=document.getElementById('decrypt').checked;
+ document.getElementById('output1').innerHTML=input+":"+keyword+":"+offset+":"+(decrypt?"true":"false");
+ document.getElementById('output2').innerHTML=Cipher(input,keyword,offset,decrypt);
+}
+
+function Cipher(input,keyword,offset,decrypt)
+{
+ var alphabet='ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+ var convertedkeyword=''
+ var dwindle=keyword.toUpperCase().replaceAll(/[^A-Z]/g, '');
+ var output='';
+ while(dwindle.length>0)
+ {
+  var tmp=dwindle[0];
+  convertedkeyword+=tmp;
+  dwindle=dwindle.replaceAll(tmp,'');
+  alphabet=alphabet.replaceAll(tmp,'');
+ }
+ alphabet=offset_at(convertedkeyword+alphabet,offset);
+ for(x=0;x<input.length;x++)
+ {
+  if(decrypt)
+  {
+   output+=replace_decrypt(input[x].toUpperCase(),alphabet);
+  }
+  else
+  {
+   output+=replace(input[x].toUpperCase(),alphabet);
+  }
+ }
+ document.getElementById('output3').innerHTML=alphabet;
+ return output;
+}
+
+function replace_decrypt(letter,alphabet)
+{
+ var diff=letter.charCodeAt(0)-'A'.charCodeAt(0);
+ if(diff<0||diff>25)return letter;
+ return alphabet[diff];
+}
+
+function replace(letter,alphabet)
+{
+ var normal='ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+ var x=0;
+ for(x=0;x<26;x++)
+ {
+  if(letter==alphabet[x])
+  {
+   return normal[x];   
+  }
+ }
+ return letter;
+}
+
+function offset_at(value, index)
+{
+ return value.substring(26-index)+value.substring(0, (26-index));
+}
+
+</script>
+<style>
+input
+{
+    font-size:64px;
+}
+
+div
+{
+    font-size:64px;
+}
+</style>
+</head>
+<body>
+<input id="input" oninput="compute()">
+<input id="keyword" oninput="compute()">
+<input id="offset" type="number" oninput="compute()" value=0>
+Decrypt<input id="decrypt" type="checkbox" onchange="compute()">
+<div id="output1"></div>
+<div id="output2"></div>
+<div id="output3"></div>
+</body>
+</html>

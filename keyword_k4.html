@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+function compute()
+{
+ var input=document.getElementById('input').value;
+ var ptkeyword=document.getElementById('ptkeyword').value;
+ var ctkeyword=document.getElementById('ctkeyword').value;
+ var offset=Number(document.getElementById('offset').value);
+ while(offset<0){offset=(offset)+26;}
+ var decrypt=document.getElementById('decrypt').checked;
+// document.getElementById('output1').innerHTML=input+":"+ptkeyword+":"+ctkeyword+":"+offset+":"+(decrypt?"true":"false");
+ document.getElementById('output2').innerHTML=Cipher(input,ptkeyword,ctkeyword,offset,decrypt);
+}
+
+function Cipher(input,ptkeyword,ctkeyword,offset,decrypt)
+{
+ var ptalphabet='ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+ var ctalphabet='ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+ var ptconvertedkeyword=''
+ var ctconvertedkeyword=''
+ var ptdwindle=ptkeyword.toUpperCase().replaceAll(/[^A-Z]/g, '');
+ var ctdwindle=ctkeyword.toUpperCase().replaceAll(/[^A-Z]/g, '');
+ var output='';
+ while(ptdwindle.length>0)
+ {
+  var tmp=ptdwindle[0];
+  ptconvertedkeyword+=tmp;
+  ptdwindle=ptdwindle.replaceAll(tmp,'');
+  ptalphabet=ptalphabet.replaceAll(tmp,'');
+ }
+ while(ctdwindle.length>0)
+ {
+  var tmp=ctdwindle[0];
+  ctconvertedkeyword+=tmp;
+  ctdwindle=ctdwindle.replaceAll(tmp,'');
+  ctalphabet=ctalphabet.replaceAll(tmp,'');
+ }
+ ptalphabet=ptconvertedkeyword+ptalphabet;
+ ctalphabet=offset_at(ctconvertedkeyword+ctalphabet,offset);
+ document.getElementById('output4').innerHTML=ptalphabet;
+ document.getElementById('output3').innerHTML=ctalphabet;
+ var x=0;
+ for(x=0;x<input.length;x++)
+ {
+  if(decrypt)
+  {
+   output+=replace(input[x].toUpperCase(),ctalphabet,ptalphabet);
+  }
+  else
+  {
+   output+=replace(input[x].toUpperCase(),ptalphabet,ctalphabet);
+  }
+ }
+ return output;
+}
+
+
+function replace(letter,ptalphabet,ctalphabet)
+{
+ var x=0;
+ for(x=0;x<26;x++)
+ {
+  if(letter==ctalphabet[x])
+  {
+   return ptalphabet[x];   
+  }
+ }
+ return letter;
+}
+
+function offset_at(value, index)
+{
+ return value.substring(26-index)+value.substring(0, (26-index));
+}
+
+</script>
+<style>
+input
+{
+    font-size:64px;
+}
+
+div
+{
+    font-size:64px;
+}
+.monospace
+{
+ font-family:monospace;
+}
+</style>
+</head>
+<body>
+Phrase to be encrypted:<br><input id="input" oninput="compute()"><br>
+Plain Text Keyword:<br><input id="ptkeyword" oninput="compute()"><br>
+Cipher Text Keyword:<br><input id="ctkeyword" oninput="compute()"><br>
+Offset:<br><input id="offset" type="number" oninput="compute()" value=0><br>
+Decrypt<input id="decrypt" type="checkbox" onchange="compute()"><br>
+<div id="output1"></div>
+<div id="output2"></div>
+
+Plain Text Alphabet<br>
+<div class="monospace" id="output3"></div>
+Cipher Text Alphabet
+<div class="monospace" id="output4"></div>
+</body>
+</html>

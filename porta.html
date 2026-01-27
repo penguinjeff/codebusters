@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+function compute()
+{
+ var input=document.getElementById('input').value.replace(/[^a-z]/gi, '').toUpperCase();
+ var keyword=document.getElementById('keyword').value.toUpperCase();
+ document.getElementById('output1').innerHTML=input;
+ document.getElementById('output2').innerHTML=Cipher(input,keyword);
+}
+
+function Cipher(input,keyword)
+{
+ var output='';
+ if(keyword.length>0)
+ {
+  var n_z=''
+  var a_m=''
+  var charN='N'.charCodeAt(0)
+  var charA='A'.charCodeAt(0)
+  for(x=0;x<13;x++)
+  {
+   n_z+=String.fromCharCode(charN+x);
+   a_m+=String.fromCharCode(charA+x);
+  }
+  var x;
+  var y=0;
+  for(x=0;x<input.length;x++)
+  {
+   //get the position in alphabet A-Z indexed at zero 0-23
+   var char_int=input[x].charCodeAt(0)-charA;
+   //if not A-Z just keep it the same
+   if(char_int<0||char_int>25)
+   {
+    output+=input[x];
+   }
+   else
+   {
+    //use a different incrementor ie:y so they keyword letters are not skipped introducing non alphbet characters
+    var keychar_int=(keyword[ (y++)%keyword.length ].charCodeAt(0)-charA);
+    //get row 0-12
+    var shift=((keychar_int-(keychar_int%2))/2)
+    //wrap the row
+    if(char_int>12)
+    {
+     output+=a_m[((13-shift+char_int)%13)]
+    }
+    else
+    {
+     output+=n_z[((shift+char_int)%13)]
+    }
+   }
+  }
+ }
+ return output;
+}
+
+</script>
+<style>
+input
+{
+    font-size:64px;
+}
+
+div
+{
+    font-size:64px;
+}
+.monospace
+{
+ font-family:monospace;
+}
+.monospacecols
+{
+ font-family:monospace;
+ overflow-wrap:break-word;
+ width:13ch;
+}
+</style>
+</head>
+<body>
+Phrase to be encrypted:<br><input id="input" oninput="compute()"><br>
+Keyword:<br><input id="keyword" oninput="compute()" value="x"><br>
+INPUT:<br>
+<div class="monospacecols" id="output1"></div>
+OUTPUT:<br>
+<div class="monospacecols" id="output2"></div>
+</body>
+</html>

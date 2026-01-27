@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+function compute()
+{
+ var input=document.getElementById('input').value.replace(/[^a-z]/gi, '').toUpperCase();
+ var padding=document.getElementById('padding').value.toUpperCase();
+ if(padding==''){padding='X';}
+ var columns=parseInt(document.getElementById('columns').value,10);
+ var rows=Math.ceil(input.length/columns)
+ while(input.length<(rows*columns))
+ {
+  input+=padding[0]
+ }
+// alert(rows);
+ var order=document.getElementById('order').value;
+ var col=[];
+ var gotten=[];
+ for(x=0;x<columns;x++)
+ {
+  gotten[x]=false;
+ }
+ var order_shouldbe='';
+ for(x=0;x<order.length;x++)
+ {var character=parseInt(order[x],10);
+  if(x>columns){break;}
+  col[x]=character;
+  if(character>0 && character<(columns+1) && !gotten[character-1])
+  {
+   col[x]=(character-1);
+   gotten[(character-1)]=true;
+   order_shouldbe+=character;
+  }
+  else
+  {
+   alert("already used:"+character)
+   for(y=0;y<gotten.length;y++)
+   {if(gotten[y]){continue;}
+    else
+    {
+     col[x]=y;
+     order_shouldbe+=(y+1);
+     gotten[y]=true;
+     break;
+    }
+   }
+  }
+ }
+ for(;x<columns;x++)
+ {
+  for(y=0;y<gotten.length;y++)
+  {
+   if(gotten[y]){continue;}
+   else
+   {
+    col[x]=y;
+    order_shouldbe+=(y+1);
+    gotten[y]=true;
+    break
+   }
+  }
+ }
+ if(order!=order_shouldbe)
+ {
+  document.getElementById('order').value=order_shouldbe;
+ }
+ var decrypt=document.getElementById('decrypt').checked;
+ fixwidth(columns);
+ document.getElementById('output1').innerHTML=input;
+ document.getElementById('output2').innerHTML=Cipher(input,col,decrypt);
+}
+
+function Cipher(input,col,decrypt)
+{
+ var rows=(input.length/col.length);
+ var output=''
+ for(x=0;x<rows;x++)
+ {
+  for(y=0;y<col.length;y++)
+  {
+   output+=input[(x*col.length)+col[y]]
+  }
+ }
+ return output;
+}
+
+function fixwidth(width) {
+    var divs = document.getElementsByClassName('monospacecols');
+    for (var i = 0; i < divs.length; i++) {
+        divs[i].style.width = width + 'ch';
+    }
+}
+
+</script>
+<style>
+input
+{
+    font-size:64px;
+}
+
+div
+{
+    font-size:64px;
+}
+.monospace
+{
+ font-family:monospace;
+}
+.monospacecols
+{
+ font-family:monospace;
+ overflow-wrap:break-word;
+}
+</style>
+</head>
+<body>
+Phrase to be encrypted:<br><input id="input" oninput="compute()"><br>
+Padding Character:<br><input id="padding" oninput="compute()" value="x"><br>
+Columns:<br><input id="columns" type="number" oninput="compute()" value="5" max="10" min="3"><br>
+Order:<br><input id="order" type="number" onchange="compute()" value="12345" min="123"><br>
+Decrypt<input id="decrypt" type="checkbox" onchange="compute()"><br>
+INPUT:<br>
+<div class="monospacecols" id="output1"></div>
+OUTPUT:<br>
+<div class="monospacecols" id="output2"></div>
+</body>
+</html>

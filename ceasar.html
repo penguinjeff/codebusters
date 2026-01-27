@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+function compute()
+{
+ var input=document.getElementById('input').value;
+ var shift=document.getElementById('shift').value;
+ var decrypt=document.getElementById('decrypt').checked;
+// document.getElementById('output1').innerHTML=input+":"+shift+":"+(decrypt?"true":"false");
+ document.getElementById('output2').innerHTML=caesarCipher(input,shift,decrypt);
+}
+
+const caesarCipher = (str, shift, decrypt = false) => {
+  const s = decrypt ? ((26 - shift) % 26) : (shift % 26);
+  const n = s > 0 ? s : 26 + (s % 26);
+  return [...str]
+    .map((l, i) => {
+      const c = str.charCodeAt(i);
+      if (c >= 65 && c <= 90) return String.fromCharCode(((c - 65 + n) % 26) + 65);
+      if (c >= 97 && c <= 122) return String.fromCharCode(((c - 97 + n) % 26) + 97);
+      return l;
+    })
+    .join('');
+};
+// Example usage:
+//console.log(caesarCipher('Hello World!', 23)); // 'Ebiil Tloia!'
+//console.log(caesarCipher('Ebiil Tloia!', 23, true)); // 'Hello World!'   
+
+</script>
+<style>
+input
+{
+    font-size:64px;
+}
+#shift
+{
+    width:85px;
+}
+
+div
+{
+    font-size:64px;
+}
+</style>
+</head>
+<body>
+<input id="input" oninput="compute()">
+<input id="shift" type="number" oninput="compute()" value="0">
+Decrypt<input id="decrypt" type="checkbox" onchange="compute()">
+<div id="output1"></div>
+<div id="output2"></div>
+</body>
+</html>
