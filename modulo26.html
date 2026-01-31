@@ -1,0 +1,109 @@
+<html>
+<head>
+<script>
+function doSomething()
+{
+ const denominator=document.getElementById("denominator").value;
+ const decimal=1/denominator;
+ const modulo=document.getElementById("modulo").value;
+ let frac=0;
+ let more=""
+ if(!(modulo===""))
+ {
+  frac=mod26((modulo*1));
+ }
+ else
+ {
+  more=" denominator:"+denominator+" decimal:"+decimal+" ";
+  frac=mod26(decimal);
+ }
+ let output=document.getElementById("output");
+ output.innerHTML="mod26:"+frac;
+}
+
+function mod26(number,denominator=1)
+{
+ if(denominator===1)
+ {
+  if(Number.isInteger(number))
+  {
+   if(number>=0)
+   {
+    console.log("normal modulo of "+number+" is "+number%26);
+	// return (number-(Math.floor(number/-26)*26));
+    return number%26;
+   }
+   else
+   {
+    console.log("negative conversion of "+number+" is "+(number+(Math.ceil(number/26)*26)));
+    // return (number+((Math.floor(number/-26)+1)*26));
+    return (number+(Math.ceil(number/-26)*26));
+   }
+  }
+  else
+  {
+   const n=naive(number)
+   if(!Number.isInteger(n))
+   {
+    console.log(number+" has no modulo 26");
+    return;
+   }
+   console.log("converting decimal "+number+" to 1/"+n);
+   return mod26(1,n);
+  }
+ }
+ else
+ {
+  const smaller=mod26(denominator);
+  let val=0;
+  switch(smaller)
+  {
+   case 25: val=25; break;
+   case 23: val=17; break;
+   case 21: val=5;  break;
+   case 19: val=11; break;
+   case 17: val=23; break;
+   case 15: val=7;  break;
+   case 11: val=19; break;
+   case  9: val=3;  break;
+   case  7: val=15; break;
+   case  5: val=21; break;
+   case  3: val=9;  break;
+   case  1: val=1;  break;
+   default:
+   console.log("1/"+smaller+" has no modulo 26")
+   return;
+  }
+  console.log("modulo 26 of 1/"+smaller+" is "+val);
+  return val;
+ }
+}
+
+function naive(decimal)
+{
+ let denominator=1;
+ if(decimal>0)
+ {
+  for(let x=1;x<(25*26);x++)
+  {
+   if((1/x)===decimal){return x;break;}
+  }
+ }
+ else
+ {
+  for(let x=-1;x>(-25*26);x--)
+  {
+   if((1/x)===decimal){return x;break;}
+  }
+ }
+}
+
+</script>
+</head>
+<body>
+1/<input id="denominator" value="1"><br>
+<input id="modulo">
+<button onclick="doSomething()">process</button>
+<div id="output"></div>
+</body>
+</html>
