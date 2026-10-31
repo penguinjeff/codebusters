@@ -2,94 +2,85 @@
 <html>
 <head>
 <script>
-function compute()
-{
- var input=document.getElementById('input').value.replace(/[^a-z]/gi, '').toUpperCase();
- var padding=document.getElementById('padding').value.toUpperCase();
- if(padding==''){padding='X';}
- var columns=parseInt(document.getElementById('columns').value,10);
- var rows=Math.ceil(input.length/columns)
- while(input.length<(rows*columns))
- {
-  input+=padding[0]
- }
-// alert(rows);
- var order=document.getElementById('order').value;
- var col=[];
- var gotten=[];
- for(x=0;x<columns;x++)
- {
-  gotten[x]=false;
- }
- var order_shouldbe='';
- for(x=0;x<order.length;x++)
- {var character=parseInt(order[x],10);
-  if(x>columns){break;}
-  col[x]=character;
-  if(character>0 && character<(columns+1) && !gotten[character-1])
-  {
-   col[x]=(character-1);
-   gotten[(character-1)]=true;
-   order_shouldbe+=character;
-  }
-  else
-  {
-   alert("already used:"+character)
-   for(y=0;y<gotten.length;y++)
-   {if(gotten[y]){continue;}
-    else
-    {
-     col[x]=y;
-     order_shouldbe+=(y+1);
-     gotten[y]=true;
-     break;
-    }
-   }
-  }
- }
- for(;x<columns;x++)
- {
-  for(y=0;y<gotten.length;y++)
-  {
-   if(gotten[y]){continue;}
-   else
-   {
-    col[x]=y;
-    order_shouldbe+=(y+1);
-    gotten[y]=true;
-    break
-   }
-  }
- }
- if(order!=order_shouldbe)
- {
-  document.getElementById('order').value=order_shouldbe;
- }
- var decrypt=document.getElementById('decrypt').checked;
- fixwidth(columns);
- document.getElementById('output1').innerHTML=input;
- document.getElementById('output2').innerHTML=Cipher(input,col,decrypt);
+function compute(){
+  var columns=parseInt(document.getElementById('columns').value,10);
+  console.log('columns:'+columns)
+  var input=fix_input(fix_padding(),columns);
+  console.log('input length:'+input.length)
+  var order=fix_order(columns);
+  document.getElementById('output2').innerHTML=Cipher(input,order);
 }
 
-function Cipher(input,col,decrypt)
-{
- var rows=(input.length/col.length);
- var output=''
- for(x=0;x<rows;x++)
- {
-  for(y=0;y<col.length;y++)
-  {
-   output+=input[(x*col.length)+col[y]]
+function Cipher(input, order) {
+  const columns = order.length;
+  let output = "";
+  for (let i = 0; i < input.length; i += columns) {
+    const block = input.slice(i, i + columns);
+    for (const col of order) {
+      output += block[col - 1];
+    }
   }
- }
- return output;
+  return output;
 }
 
 function fixwidth(width) {
-    var divs = document.getElementsByClassName('monospacecols');
-    for (var i = 0; i < divs.length; i++) {
-        divs[i].style.width = width + 'ch';
+  var divs = document.getElementsByClassName('monospacecols');
+  for (var i = 0; i < divs.length; i++) {
+    divs[i].style.width = width + 'ch';
+  }
+}
+
+function fix_input(padChar, columns) {
+  const input = document.getElementById("input");
+  // Uppercase and keep only A-Z
+  input.value = input.value
+    .toUpperCase()
+    .replace(/[^A-Z]/g, "");
+  while(input.value.endsWith(padChar)){
+   input.value=input.value.slice(0,-1);
+  }
+  // Pad to a multiple of columns
+  while(0 !== (input.value.length % columns)){
+    input.value += padChar;
+  }
+  return input.value;
+}
+
+function fix_order(columns) {
+  const input = document.getElementById("order");
+  // Keep only digits and commas
+  input.value = input.value.replace(/[^0-9,]/g, "");
+  // Split, remove empties, convert to integers
+  let order = input.value
+    .split(",")
+    .filter(v => v !== "")
+    .map(v => parseInt(v, 10));
+  // Remove invalid columns and duplicate occurrences
+  const seen = new Set();
+  order = order.filter(col => {
+    if (col < 1 || col >= (columns+1)) return false;
+    if (seen.has(col)) return false;
+      seen.add(col);
+      return true;
+  });
+  // Append any missing columns
+  for (let col = 1; col < (columns+1); col++) {
+    if (!seen.has(col)) {
+      order.push(col);
     }
+  }
+  // Update input
+  input.value = order.join(",");
+  return order;
+}
+
+function fix_padding(){
+ var padding=document.getElementById('padding');
+ if(padding.value===""){
+  padding.value='X'; 
+ }
+ console.log('padding:'+padding.value)
+ return padding.value;
 }
 
 </script>
@@ -115,11 +106,11 @@ div
 </style>
 </head>
 <body>
-Phrase to be encrypted:<br><input id="input" oninput="compute()"><br>
-Padding Character:<br><input id="padding" oninput="compute()" value="x"><br>
-Columns:<br><input id="columns" type="number" oninput="compute()" value="5" max="10" min="3"><br>
-Order:<br><input id="order" type="number" onchange="compute()" value="12345" min="123"><br>
-Decrypt<input id="decrypt" type="checkbox" onchange="compute()"><br>
+Phrase to be encrypted or decrypted:<br><input id="input"><br>
+Padding Character:<br><input id="padding" value="X" maxlength="1" pattern="[A-Z]" size="1"><br>
+Columns:<br><input id="columns" type="number" oninput="compute()" value="5" max="20" min="2"><br>
+Order:<br><input id="order" onchange="compute()" value="1,2,3,4,5"><br>
+<input type=button onclick="compute()" value="Submit"><br>
 INPUT:<br>
 <div class="monospacecols" id="output1"></div>
 OUTPUT:<br>
