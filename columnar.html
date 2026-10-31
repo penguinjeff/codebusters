@@ -8,9 +8,17 @@ function compute(){
   var input=fix_input(fix_padding(),columns);
   console.log('input length:'+input.length)
   var order=fix_order(columns);
-  document.getElementById('output2').innerHTML=Cipher(input,order);
+  var output=document.getElementById('output2');
+  const checkbox = document.getElementById("decrypt");
+  if(checkbox.checked){
+    output.innerHTML=Decipher(input,order);
+  }else{
+    output.innerHTML=Cipher(input,order);
+  }
 }
 
+/*
+// Miss understood cypher
 function Cipher(input, order) {
   const columns = order.length;
   let output = "";
@@ -22,6 +30,56 @@ function Cipher(input, order) {
   }
   return output;
 }
+*/
+
+function Cipher(input, order) {
+    var columns = order.length;
+    var rows = input.length / columns;
+    var output = "";
+
+    for (var o = 0; o < order.length; o++) {
+        var col = order[o] - 1;
+
+        for (var row = 0; row < rows; row++) {
+            output += input[(row * columns) + col];
+        }
+    }
+
+    return output;
+}
+
+
+function Decipher(input, order) {
+    var columns = order.length;
+    var rows = input.length / columns;
+
+    var grid = new Array(rows);
+    for (var r = 0; r < rows; r++) {
+        grid[r] = new Array(columns);
+    }
+
+    var pos = 0;
+
+    for (var o = 0; o < order.length; o++) {
+        var col = order[o] - 1;
+
+        for (var row = 0; row < rows; row++) {
+            grid[row][col] = input.charAt(pos++);
+        }
+    }
+
+    var output = "";
+
+    for (var row = 0; row < rows; row++) {
+        for (var col = 0; col < columns; col++) {
+            output += grid[row][col];
+        }
+    }
+
+    return output;
+}
+
+
 
 function fixwidth(width) {
   var divs = document.getElementsByClassName('monospacecols');
@@ -110,6 +168,7 @@ Phrase to be encrypted or decrypted:<br><input id="input"><br>
 Padding Character:<br><input id="padding" value="X" maxlength="1" pattern="[A-Z]" size="1"><br>
 Columns:<br><input id="columns" type="number" oninput="compute()" value="5" max="20" min="2"><br>
 Order:<br><input id="order" onchange="compute()" value="1,2,3,4,5"><br>
+Decrypt:<br><input id="decrypt" type="checkbox"><br>
 <input type=button onclick="compute()" value="Submit"><br>
 INPUT:<br>
 <div class="monospacecols" id="output1"></div>
